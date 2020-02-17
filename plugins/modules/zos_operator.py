@@ -213,13 +213,30 @@ message:
 from ansible.module_utils.basic import AnsibleModule
 import argparse
 import re
+from traceback import format_exc
 from zoautil_py import OperatorCmd
+from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 
 def run_module():
     module_args = dict(
         cmd=dict(type='str', required=True),
         verbose=dict(type='bool',default=False),
         debug=dict(type='bool', default=False),
+    )
+
+    arg_defs=dict(
+        cmd = dict(
+            arg_type='str',
+            required=True
+        ),
+        verbose=dict(
+            arg_type='bool',
+            required=False
+        ),
+        debug=dict(
+            arg_type='bool',
+            required=False
+        )
     )
 
     result = dict(
@@ -236,7 +253,9 @@ def run_module():
     result['original_message'] = module.params
     
     try:
-        rc_message = run_operator_command(module.params)
+        parser = BetterArgParser(arg_defs)
+        new_params = parser.parse_args(module.params)
+        rc_message = run_operator_command(new_params)
         result['rc'] = rc_message.get('rc')
         result['response'] = rc_message.get('message')
     except Error as e:
