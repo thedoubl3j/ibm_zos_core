@@ -76,7 +76,7 @@ EXAMPLES = '''
 }
 
 
-- name: issue an operator command for show active jobs with security information and debug message
+- name: issue an operator command for show active jobs with security information
   zos_operator:
     cmd: 'd u,all'
     verbose: True
@@ -153,6 +153,7 @@ EXAMPLES = '''
     32 *-* end
     17 *-* do while (Pos('-', input)<>0)
     ...
+    ...
     106 *-*  Call SayErr isfmsg2.x
        >C>    "ISFMSG2.18"
        >V>    "ISF766I Request completed, status: COMMAND ISSUED."
@@ -195,12 +196,14 @@ failed:
     type: bool
 rc:
     description: return code of the operator command
+    returned: success
     type: int
 response:
     description: the response of the operator command
+    returned: success
     type: str
 message:
-    description: Message returned on failure, if 'rc<0' it will be the response of operator command, else if other unknown exception happened,it will return 'An unexpected error occurred',eg 
+    description: Message returned on failure, if 'rc>0' it will be the response of operator command, else if other unknown exception happened,it will return 'An unexpected error occurred'
     type: str
     returned: failure
     sample: 
