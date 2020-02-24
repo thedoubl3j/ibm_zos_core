@@ -24,20 +24,20 @@ options:
     required: True
   verbose:
     description:
-      - print out verbose security information
+      - Print out verbose security information
     type: bool
     required: False
     default: False
   debug:
     description:
-      - print out debug messages
+      - Print out debug messages
     type: bool
     required: False
-    default: False 
+    default: False
 seealso: []
 requirements:
     - Z Open Automation Utilities
-    - Python 3.6 or higher 
+    - Python 3.6 or higher
     - |
       Set the following environment variables for the playbook:
         `_BPXK_AUTOCVT=ON`
@@ -47,83 +47,81 @@ requirements:
 
 EXAMPLES = '''
 # Task(s) is a call to an ansible module, basically an action needing to be accomplished
-- name: issue an operator command for show active jobs 
+- name: Issue an operator command for show active jobs
   zos_operator:
     cmd: 'd u,all'
 - Sample result('rc' field and 'response' field):
 {
     rc:0,
-    response："MV2C      2020039  04:29:57.58             ISF031I CONSOLE XIAOPIN ACTIVATED                   
-    MV2C      2020039  04:29:57.58            -D U,ALL                                             
-    MV2C      2020039  04:29:57.59             IEE457I 04.29.57 UNIT STATUS 948                    
-                    UNIT TYPE STATUS        VOLSER     VOLSTATE      SS 
-                    0100 3277 OFFLINE                                 0 
-                    0101 3277 OFFLINE                                 0 
-                    0110 3277 OFFLINE                                 0 
-                    0111 3277 OFFLINE                                 0 
-                    0120 3270 OFFLINE                                 0 
-                    0121 3270 OFFLINE                                 0 
-                    0130 3270 OFFLINE                                 0 
-                    0131 3270 OFFLINE                                 0 
-                    0A42 349L O-NRD  -AS                   /REMOV     0 
-                    0A43 349L O-NRD  -AS                   /REMOV     0 
-                    0A44 349L O-NRD  -AS                   /REMOV     0 
-                    0A45 349L O-NRD  -AS                   /REMOV     0 
-                    0A46 349L O-NRD  -AS                   /REMOV     0 
-                    0A47 349L O-NRD  -AS                   /REMOV     0 
-                    0A48 349L O-NRD  -AS                   /REMOV     0 
+    response："MV2C      2020039  04:29:57.58             ISF031I CONSOLE XIAOPIN ACTIVATED
+    MV2C      2020039  04:29:57.58            -D U,ALL
+    MV2C      2020039  04:29:57.59             IEE457I 04.29.57 UNIT STATUS 948
+                    UNIT TYPE STATUS        VOLSER     VOLSTATE      SS
+                    0100 3277 OFFLINE                                 0
+                    0101 3277 OFFLINE                                 0
+                    0110 3277 OFFLINE                                 0
+                    0111 3277 OFFLINE                                 0
+                    0120 3270 OFFLINE                                 0
+                    0121 3270 OFFLINE                                 0
+                    0130 3270 OFFLINE                                 0
+                    0131 3270 OFFLINE                                 0
+                    0A42 349L O-NRD  -AS                   /REMOV     0
+                    0A43 349L O-NRD  -AS                   /REMOV     0
+                    0A44 349L O-NRD  -AS                   /REMOV     0
+                    0A45 349L O-NRD  -AS                   /REMOV     0
+                    0A46 349L O-NRD  -AS                   /REMOV     0
+                    0A47 349L O-NRD  -AS                   /REMOV     0
+                    0A48 349L O-NRD  -AS                   /REMOV     0
                     0A49 349L O-NRD  -AS                   /REMOV     0 "
 }
-
-
-- name: issue an operator command for show active jobs with security information
+- name: Issue an operator command to show active jobs with security information
   zos_operator:
     cmd: 'd u,all'
     verbose: True
 - Sample result('rc' field and 'response' field):
 {   ...
     rc:0,
-    response："ISF050I USER=XIAOPIN GROUP= PROC=REXX TERMINAL=IY29TC26                                                
-    ISF051I SAF No decision    SAFRC=4 ACCESS=READ CLASS=SDSF RESOURCE=GROUP.ISFSPROG.SDSF                 
-    ISF057I GROUP=ISFSPROG Access denied  USERAUTH=JCL REQAUTH=OPER,ACCT,JCL RSN=01 Insufficient authority 
-    ISF051I SAF No decision    SAFRC=4 ACCESS=READ CLASS=SDSF RESOURCE=GROUP.ISFOPER.SDSF                  
-    ISF057I GROUP=ISFOPER Access denied  USERAUTH=JCL REQAUTH=OPER,JCL RSN=01 Insufficient authority       
-    ISF051I SAF No decision    SAFRC=4 ACCESS=READ CLASS=SDSF RESOURCE=GROUP.ISFUSER.SDSF                  
-    ISF057I GROUP=ISFUSER Access allowed USERAUTH=JCL REQAUTH=JCL                                          
-    ISF050I USER=XIAOPIN GROUP=ISFUSER PROC=REXX TERMINAL=IY29TC26                                         
-    ISF051I SAF Access allowed SAFRC=0 ACCESS=READ CLASS=SDSF RESOURCE=ISFCMD.FILTER.PREFIX                
-    ISF051I SAF Access allowed SAFRC=0 ACCESS=READ CLASS=SDSF RESOURCE=ISFCMD.FILTER.OWNER                 
-    ISF051I SAF Access allowed SAFRC=0 ACCESS=READ CLASS=SDSF RESOURCE=ISFOPER.DEST.JES2                   
-    ISF051I SAF Access allowed SAFRC=0 ACCESS=READ CLASS=SDSF RESOURCE=ISFOPER.ANYDEST.JES2                
-    ISF754I Command 'SET SECTRACE ON' generated from associated variable ISFSECTRACE.                      
-    ISF776I Processing started for action 1 of 1.                                                          
-    ISF051I SAF Access allowed SAFRC=0 ACCESS=READ CLASS=SDSF RESOURCE=ISFOPER.SYSTEM                      
-    ISF051I SAF Access allowed SAFRC=0 ACCESS=READ CLASS=SDSF RESOURCE=ISFCMD.ODSP.ULOG.JES2               
-    ISF769I System command issued, command text: D U,ALL.                                                  
-    ISF766I Request completed, status: COMMAND ISSUED.                                                     
-    MV2C      2020039  04:29:20.73             ISF031I CONSOLE XIAOPIN ACTIVATED                           
-    MV2C      2020039  04:29:20.73            -D U,ALL                                                     
-    MV2C      2020039  04:29:20.74             IEE457I 04.29.20 UNIT STATUS 852                            
-                            UNIT TYPE STATUS        VOLSER     VOLSTATE      SS         
-                            0100 3277 OFFLINE                                 0         
-                            0101 3277 OFFLINE                                 0         
-                            0110 3277 OFFLINE                                 0         
-                            0111 3277 OFFLINE                                 0         
-                            0120 3270 OFFLINE                                 0         
-                            0121 3270 OFFLINE                                 0         
-                            0130 3270 OFFLINE                                 0         
-                            0131 3270 OFFLINE                                 0         
-                            0A42 349L O-NRD  -AS                   /REMOV     0         
-                            0A43 349L O-NRD  -AS                   /REMOV     0         
-                            0A44 349L O-NRD  -AS                   /REMOV     0         
-                            0A45 349L O-NRD  -AS                   /REMOV     0         
-                            0A46 349L O-NRD  -AS                   /REMOV     0         
-                            0A47 349L O-NRD  -AS                   /REMOV     0         
-                            0A48 349L O-NRD  -AS                   /REMOV     0         
+    response："ISF050I USER=XIAOPIN GROUP= PROC=REXX TERMINAL=IY29TC26
+    ISF051I SAF No decision    SAFRC=4 ACCESS=READ CLASS=SDSF RESOURCE=GROUP.ISFSPROG.SDSF
+    ISF057I GROUP=ISFSPROG Access denied  USERAUTH=JCL REQAUTH=OPER,ACCT,JCL RSN=01 Insufficient authority
+    ISF051I SAF No decision    SAFRC=4 ACCESS=READ CLASS=SDSF RESOURCE=GROUP.ISFOPER.SDSF
+    ISF057I GROUP=ISFOPER Access denied  USERAUTH=JCL REQAUTH=OPER,JCL RSN=01 Insufficient authority
+    ISF051I SAF No decision    SAFRC=4 ACCESS=READ CLASS=SDSF RESOURCE=GROUP.ISFUSER.SDSF
+    ISF057I GROUP=ISFUSER Access allowed USERAUTH=JCL REQAUTH=JCL
+    ISF050I USER=XIAOPIN GROUP=ISFUSER PROC=REXX TERMINAL=IY29TC26
+    ISF051I SAF Access allowed SAFRC=0 ACCESS=READ CLASS=SDSF RESOURCE=ISFCMD.FILTER.PREFIX
+    ISF051I SAF Access allowed SAFRC=0 ACCESS=READ CLASS=SDSF RESOURCE=ISFCMD.FILTER.OWNER
+    ISF051I SAF Access allowed SAFRC=0 ACCESS=READ CLASS=SDSF RESOURCE=ISFOPER.DEST.JES2
+    ISF051I SAF Access allowed SAFRC=0 ACCESS=READ CLASS=SDSF RESOURCE=ISFOPER.ANYDEST.JES2
+    ISF754I Command 'SET SECTRACE ON' generated from associated variable ISFSECTRACE.
+    ISF776I Processing started for action 1 of 1.
+    ISF051I SAF Access allowed SAFRC=0 ACCESS=READ CLASS=SDSF RESOURCE=ISFOPER.SYSTEM
+    ISF051I SAF Access allowed SAFRC=0 ACCESS=READ CLASS=SDSF RESOURCE=ISFCMD.ODSP.ULOG.JES2
+    ISF769I System command issued, command text: D U,ALL.
+    ISF766I Request completed, status: COMMAND ISSUED.
+    MV2C      2020039  04:29:20.73             ISF031I CONSOLE XIAOPIN ACTIVATED
+    MV2C      2020039  04:29:20.73            -D U,ALL
+    MV2C      2020039  04:29:20.74             IEE457I 04.29.20 UNIT STATUS 852
+                            UNIT TYPE STATUS        VOLSER     VOLSTATE      SS
+                            0100 3277 OFFLINE                                 0
+                            0101 3277 OFFLINE                                 0
+                            0110 3277 OFFLINE                                 0
+                            0111 3277 OFFLINE                                 0
+                            0120 3270 OFFLINE                                 0
+                            0121 3270 OFFLINE                                 0
+                            0130 3270 OFFLINE                                 0
+                            0131 3270 OFFLINE                                 0
+                            0A42 349L O-NRD  -AS                   /REMOV     0
+                            0A43 349L O-NRD  -AS                   /REMOV     0
+                            0A44 349L O-NRD  -AS                   /REMOV     0
+                            0A45 349L O-NRD  -AS                   /REMOV     0
+                            0A46 349L O-NRD  -AS                   /REMOV     0
+                            0A47 349L O-NRD  -AS                   /REMOV     0
+                            0A48 349L O-NRD  -AS                   /REMOV     0
                             0A49 349L O-NRD  -AS                   /REMOV     0"
- ...                                                   
+ ...
 }
-- name: issue an operator command for show active jobs with security information and debug message
+- name: Issue an operator command to show active jobs with security information and debug message
   zos_operator:
     cmd: 'd u,all'
     verbose: True
@@ -195,7 +193,7 @@ failed:
     returned: always
     type: bool
 rc:
-    description: return code of the operator command
+    description: Return code of the operator command
     returned: success
     type: int
 response:
@@ -203,10 +201,10 @@ response:
     returned: success
     type: str
 message:
-    description: Message returned on failure, if 'rc>0' it will be the response of operator command, else if other unknown exception happened,it will return 'An unexpected error occurred'
+    description: Message returned on failure, if 'rc>0' it will be the response of operator command. If an unknown exception occured, it will return 'An unexpected error occurred'
     type: str
     returned: failure
-    sample: 
+    sample:
       - changed: false,
       - failed: false,
       - msg: "An unexpected error occurred"
@@ -254,7 +252,7 @@ def run_module():
     )
 
     result['original_message'] = module.params
-    
+
     try:
         parser = BetterArgParser(arg_defs)
         new_params = parser.parse_args(module.params)
@@ -288,7 +286,7 @@ class Error(Exception):
 class OperatorCmdError(Error):
     def __init__(self, message):
         self.msg = 'An error occurred during issue the operator command, the response is "{0}"'.format(message)
-        
+
 
 def main():
     run_module()
