@@ -31,9 +31,20 @@ options:
       - If set to true, the program will be run as APF authorized, otherwise the program runs as unauthorized.
   dds:
     required: false 
-    type: List
+    type: List<dict>
     description:
-      -  Specify a DDName to associate with a dataset, HFS file or volume
+      - Specify a DDName to associate with a dataset, HFS file or volume
+      - If you want to input from stdin , use option "content"
+    contains: 
+      ddname: 
+         description: The DD name 
+         type: str 
+      dataset/content: 
+         description: 
+            - For dataset, specify a dataset name associated with the ddname.  
+            - For content, input the content directly, and the module will generate a temp dataset 
+              internally for processing. Please see EXAMPLES section. 
+         type: str
   verbose:
     required: false  
     type: bool
