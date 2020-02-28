@@ -83,14 +83,24 @@ message:
           If a 'rc' 0 is returned, then the message will be 'The operator command has been issued successfully'.
           If a non-zero 'rc' is returned, then the message it will be that of the operator command.
           If unknown exception occurs , then the message returned will be 'An unexpected error occurred'. 
-    type: str
+    type: dict
     returned: always
-    sample: "The operator command has been issued successfully"
+    stdout:
+        description: The output from the module
+        type: str
+        sample: The operator command has been issued successfully
+    stderr: 
+        description: Any error text from the module
+        type: str
+        sample: If a non-zero 'rc' is returned, then the message it will be that of the operator command.
 original_message:
     description: The original list of parameters and arguments and any defaults used.
+    returned: always
     type: dict
 changed: 
-    description: Indicates if any changes were made during module operation
+    description: Indicates if any changes were made during module operation. Given operator 
+    commands can introduce change and unknown to the module, True is always returned unless
+    either a module or command failure has occurred. 
     returned: always
     type: bool
 '''
