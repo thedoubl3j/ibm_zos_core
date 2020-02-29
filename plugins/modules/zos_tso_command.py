@@ -1,29 +1,35 @@
-# /usr/bin/python
 # -*- coding: utf-8 -*-
+
+# Copyright (c) IBM Corporation 2019, 2020
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
 
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
 
-DOCUMENTATION=r"""
+DOCUMENTATION=r'''
 module: zos_tso_command 
-author:
-    - "Xiao Yuan Ma "
-short_description: Execute a TSO command on the target z/OS system
-version_added: "2.9"
+author: Xiao Yuan Ma <bjmaxy@cn.ibm.com>
+short_description: Execute a TSO command on the target z/OS system.
+description: Execute a TSO command on the target z/OS system with the provided options and receive a structured response.
 options:
   command:
-    required: true
-    description:
-      - The TSO command to execute on the target z/OS system 
-notes:
-    - This module only supports z/OS distributions.
-requirements:
-    - Python 3.6 or higher 
-"""
+      description:
+        - The TSO command to execute on the target z/OS system.
+      required: true
+      type: str 
+   auth:
+      required: false
+      type: bool
+      default: false
+      description: 
+        - > 
+          Instruct whether this program should run authorized or not. 
+          If set to true, the program will be run as APF authorized, otherwise the program runs as unauthorized.
+'''
 
-RETURN = """
+RETURN = r'''
 msg:
     description: The message of the tso command execution result. 
     returned: always 
@@ -43,33 +49,114 @@ stderr:
     returned : success, failure
     type: str
 changed: 
-    description: Indicates if any changes were made during module operation.
+    description: Indicates if any changes were made during module operation. Given TSO 
+    commands can introduce change and unknown to the module, True is always returned unless
+    either a module or command failure has occurred. 
+    returned: always
     type: bool
-"""
+result:
+    description:
+    returned:
+    type: list[dict]
+        ret_code:
+            description: return code output received from the TSO command
+            returned:
+            type: list[dict]
+            code:
+                description: Holds the return code
+                returned: always
+                type: int
+                sample: 00
+            msg_code:
+                description: Holds the return code string
+                returned:always
+                type: str
+                sample: "00"
+            msg_txt:
+                description: Holds additional information related to the job that may be useful to the user.
+                type: str
+                sample: "Received return code 08, please configure IMS Connect"
+        content:
+            description: The response resulting from the execution of the TSO command
+            returned: success
+            type: list[str]
+            sample:
+               - >
+               [ "NO MODEL DATA SET                                                OMVSADM",
+                 "TERMUACC                                                                ",
+                 "SUBGROUP(S)= VSAMDSET SYSCTLG  BATCH    SASS     MASS     IMSGRP1       ",
+                 "             IMSGRP2  IMSGRP3  DSNCAT   DSN120   J42      M63           ",
+                 "             J91      J09      J97      J93      M82      D67           ",
+                 "             D52      M12      CCG      D17      M32      IMSVS         ",
+                 "             DSN210   DSN130   RAD      CATLG4   VCAT     CSP           ",
+                ]
+        message:
+            description: The output message returned from this module. 
+            type: dict
+            returned: always
+            msg: 
+                description: Message returned by the module 
+                type: str
+                sample: Successfully submitted TSO command.
+            stdout:
+                description: The output from the module
+                type: str
+                sample: The operator command has been issued successfully
+            stderr: 
+                description: Any error text from the module
+                type: str
+                sample: An exception has occurred.
+        original_message:
+            description: The original list of parameters and arguments and any defaults used.
+            returned: always
+            type: dict
+        changed: 
+            description: Indicates if any changes were made during module operation. Given TSO 
+            commands can introduce change and unknown to the module, True is always returned unless
+            either a module or command failure has occurred. 
+            returned: always
+            type: bool
+    sample:
+        {
+            "result":{ 
+            "ret_code":{    
+                    "code":00,  
+                    "msg_code":"00", 
+                    "msg_txt":"Only if we can deduce from the return code that is helfpul",      
+               },
+            "content" : [
+                "NO MODEL DATA SET                                                OMVSADM",
+                "TERMUACC                                                                ",
+                "SUBGROUP(S)= VSAMDSET SYSCTLG  BATCH    SASS     MASS     IMSGRP1       ",
+                "             IMSGRP2  IMSGRP3  DSNCAT   DSN120   J42      M63           ",
+                "             J91      J09      J97      J93      M82      D67           ",
+                "             D52      M12      CCG      D17      M32      IMSVS         ",
+                "             DSN210   DSN130   RAD      CATLG4   VCAT     CSP           ",
+                "             DBRAD    UCAT     DB2R2CAT DB2R3CAT TESTCAT  DSNCAT1       ",
+                "             DSNCAT2  LOGCAT   USERVSAM DSNC220  DSNC120  DSNC210       "
+            ]},
+            "message":{
+                "msg": "The TSO command execution succeeded.",
+                "stderr":"delete 'TEST.HILL3.TEST'",            
+                "stdout":"'IDC0550I ENTRY (A) TEST.HILL3.TEST DELETED'"         
+            },
+            "original_message": {.....
+            },
+            "changed": false,
+        }
+'''
 
-EXAMPLES = r"""
+EXAMPLES = r'''
   - name: Execute TSO command: allocate a new dataset.
     zos_tso_command:
         command: alloc da('TEST.HILL3.TEST') like('TEST.HILL3')
+
   - name: Execute TSO command: delete an existing dataset. 
     zos_tso_command:
         command: delete 'TEST.HILL3.TEST'
-        
+'''
 
-Example outputs : 
-    {'msg': 'The TSO command execution succeeded.', 
-     'changed': True, 
-     'stdout': 'IDC0550I ENTRY (A) TEST.HILL3.TEST DELETED\\n', 
-     'stderr': \"delete 'TEST.HILL3.TEST'\\n\", 
-     'return_code': 0, 
-     'stdout_lines': ['IDC0550I ENTRY (A) TEST.HILL3.TEST DELETED'], 
-     'stderr_lines': [\"delete 'TEST.HILL3.TEST'\"], 
-     'failed': False
-     }
- 
-"""
-
-from ansible.module_utils.basic import *
+from ansible.module_utils.basic import AnsibleModule
 from os import chmod, path, remove
 from tempfile import NamedTemporaryFile
 
