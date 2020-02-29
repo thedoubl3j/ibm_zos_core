@@ -30,30 +30,6 @@ options:
 '''
 
 RETURN = r'''
-msg:
-    description: The message of the tso command execution result. 
-    returned: always 
-    type: str
-    sample: The TSO command execution succeeded..
-return_code: 
-    description: The return code. 
-    returned : always
-    type: str
-    sample: 0 means success. others means failure.
-stdout: 
-    description: The standard output of the TSO command execution 
-    returned : success, failure
-    type: str
-stderr:
-    description: The error output of the tso command execution  
-    returned : success, failure
-    type: str
-changed: 
-    description: Indicates if any changes were made during module operation. Given TSO 
-    commands can introduce change and unknown to the module, True is always returned unless
-    either a module or command failure has occurred. 
-    returned: always
-    type: bool
 result:
     description:
     returned:
@@ -90,60 +66,62 @@ result:
                  "             D52      M12      CCG      D17      M32      IMSVS         ",
                  "             DSN210   DSN130   RAD      CATLG4   VCAT     CSP           ",
                 ]
-        message:
-            description: The output message returned from this module. 
-            type: dict
-            returned: always
-            msg: 
-                description: Message returned by the module 
-                type: str
-                sample: Successfully submitted TSO command.
-            stdout:
-                description: The output from the module
-                type: str
-                sample: The operator command has been issued successfully
-            stderr: 
-                description: Any error text from the module
-                type: str
-                sample: An exception has occurred.
-        original_message:
-            description: The original list of parameters and arguments and any defaults used.
-            returned: always
-            type: dict
-        changed: 
-            description: Indicates if any changes were made during module operation. Given TSO 
-            commands can introduce change and unknown to the module, True is always returned unless
-            either a module or command failure has occurred. 
-            returned: always
-            type: bool
-    sample:
-        {
-            "result":{ 
-            "ret_code":{    
-                    "code":00,  
-                    "msg_code":"00", 
-                    "msg_txt":"Only if we can deduce from the return code that is helfpul",      
-               },
-            "content" : [
-                "NO MODEL DATA SET                                                OMVSADM",
-                "TERMUACC                                                                ",
-                "SUBGROUP(S)= VSAMDSET SYSCTLG  BATCH    SASS     MASS     IMSGRP1       ",
-                "             IMSGRP2  IMSGRP3  DSNCAT   DSN120   J42      M63           ",
-                "             J91      J09      J97      J93      M82      D67           ",
-                "             D52      M12      CCG      D17      M32      IMSVS         ",
-                "             DSN210   DSN130   RAD      CATLG4   VCAT     CSP           ",
-                "             DBRAD    UCAT     DB2R2CAT DB2R3CAT TESTCAT  DSNCAT1       ",
-                "             DSNCAT2  LOGCAT   USERVSAM DSNC220  DSNC120  DSNC210       "
-            ]},
-            "message":{
-                "msg": "The TSO command execution succeeded.",
-                "stderr":"delete 'TEST.HILL3.TEST'",            
-                "stdout":"'IDC0550I ENTRY (A) TEST.HILL3.TEST DELETED'"         
-            },
-            "original_message": {.....
-            },
-            "changed": false,
-        }
+message:
+    description: The output message returned from this module. 
+    type: dict
+    returned: always
+        msg: 
+            description: Message returned by the module 
+            type: str
+            sample: Successfully submitted TSO command.
+        stdout:
+            description: The output from the module
+            type: str
+            sample: The operator command has been issued successfully
+        stderr: 
+            description: Any error text from the module
+            type: str
+            sample: An exception has occurred.
+original_message:
+    description: The original list of parameters and arguments and any defaults used.
+    returned: always
+    type: dict
+changed: 
+    description: 
+        - >
+          Indicates if any changes were made during module operation. Given TSO 
+          commands can introduce change and unknown to the module, True is always returned unless
+          either a module or command failure has occurred. 
+          returned: always
+    type: bool
+sample:
+    {
+        "result":{ 
+        "ret_code":{    
+            "code":00,  
+            "msg_code":"00", 
+            "msg_txt":"Only if we can deduce from the return code that is helfpul",      
+        },
+        "content" : [
+            "NO MODEL DATA SET                                                OMVSADM",
+            "TERMUACC                                                                ",
+            "SUBGROUP(S)= VSAMDSET SYSCTLG  BATCH    SASS     MASS     IMSGRP1       ",
+            "             IMSGRP2  IMSGRP3  DSNCAT   DSN120   J42      M63           ",
+            "             J91      J09      J97      J93      M82      D67           ",
+            "             D52      M12      CCG      D17      M32      IMSVS         ",
+            "             DSN210   DSN130   RAD      CATLG4   VCAT     CSP           ",
+            "             DBRAD    UCAT     DB2R2CAT DB2R3CAT TESTCAT  DSNCAT1       ",
+            "             DSNCAT2  LOGCAT   USERVSAM DSNC220  DSNC120  DSNC210       "
+        ]},
+        "message":{
+            "msg": "The TSO command execution succeeded.",
+            "stderr":"delete 'TEST.HILL3.TEST'",            
+            "stdout":"'IDC0550I ENTRY (A) TEST.HILL3.TEST DELETED'"         
+        },
+        "original_message": {.....
+        },
+        "changed": false,
+    }
 '''
 
 EXAMPLES = r'''
