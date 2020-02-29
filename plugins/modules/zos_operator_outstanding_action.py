@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+
+# Copyright (c) IBM Corporation 2019, 2020
+# Apache License, Version 2.0 (see https://opensource.org/licenses/Apache-2.0)
+
+
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
     'status': ['preview'],
@@ -7,216 +12,157 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION =r'''
 ---
-module: zos_operator_outstanding_action
+module: zos_operator_action_query
 short_description: Display outstanding messages requiring operator action.
 description:
     - Get a list of outstanding messages requiring operator action given one or more conditions.
-author: "Ping Xiao (@xiaoping)"
+author: Ping Xiao <xiaoping@cn.ibm.com>
 options:
-  request_number_list:
-    description:
-      - Parameter that specifies a question number, or a list of numbers.
-    type: list
-    required: False
-    default: ['all']
   system:
     description:
-      - Filter messages for a system. If the system name is not specified, all system messages in SYSPLEX will be returned. Wild cards are not supported.
+      - >
+        Return outstanding messages requiring operator action awaiting a reply for a particular system. 
+        If the system name is not specified, all outstanding messages for that system and for 
+        the local systems attached to it are returned. Wildcards are unsupported.
     type: str
-    required: False
-    default: False
+    required: false
   message_id:
     description:
-      - The message identifier for the action message awaiting a reply.
+      - >
+        Return outstanding messages requiring operator action awaiting a reply for a particular message 
+        identifier. A trailing asterisk (*) wildcard is supported. 
     type: str
-    required: False
-    default: False
-  jobname:
+    required: false
+  job_name:
     description:
-      - The name of the job which issued the action message.
+      - Return outstanding messages requiring operator action awaiting a reply for a particular job name .
     type: str
-    required: False
-    default: False
-seealso: [zos_operator]
-notes:
-  - check_mode is supported, but in the case of this module, it never changs the system state so always return False.
+    required: false
+  seealso:
+    - module: zos_operator
 '''
 
 EXAMPLES =r'''
-# Task(s) is a call to an ansible module, basically an action needing to be accomplished
-- name: Get all outstanding messages requiring operator action
+- name: Display all outstanding messages requiring operator action
   zos_operator_outstanding_action:
     request_number_list:
-        - all
-- Sample result('requests' field):
-    [
-        {
-            'number': '001',
-            'type': 'R',
-            'system': 'MV27',
-            'job_id': 'STC01537',
-            'message_text': '*399 HWSC0000I *IMS CONNECT READY* IM5HCONN',
-            'jobname': 'IM5HCONN',
-            'message_id': 'HWSC0000I'
-        },
-        {
-            'number': '002',
-            'type': 'R',
-            'system': 'MV27',
-            'job_id': 'STC01533',
-            'message_text': '*400 DFS3139I IMS INITIALIZED, AUTOMATIC RESTART PROCEEDING IM5H',
-            'jobname': 'IM5HCTRL',
-            'message_id': 'DFS3139I'
-        }
-        ...
-    ]
-- name: Get outstanding messages given the question number
-  zos_operator_outstanding_action:
-    request_number_list:
-        - 010
-        - 008
-        - 009
-- Sample result('requests' field):
-  [
-    {
-        'number': '010',
-        'type': 'R',
-        'system': 'MV2I',
-        'job_id': 'STC15833',
-        'message_text': '*133 VAMP 0670 : ENTER COMMAND FOR IYCIZVMP',
-        'jobname': 'VAMP',
-        'message_id': 'VAMP'
-    },
-    {
-        'number': '008',
-        'type': 'R',
-        'system': 'MV2H',
-        'job_id': 'STC15768',
-        'message_text': '*116 VAMP 0670 : ENTER COMMAND FOR IYDCZVMP',
-        'jobname': 'VAMP',
-        'message_id': 'VAMP'
-    },
-    {
-        'number': '009',
-        'type': 'R',
-        'system': 'MV2I',
-        'message_text': '*130 DSI802A IYCIN    REPLY WITH VALID NCCF SYSTEM OPERATOR COMMAND',
-        'jobname': 'NETVIEW',
-        'message_id': 'DSI802A'
-    }
-  ]
-- name: To display all outstanding messages issued on system MV2H
+
+- name: Display all outstanding messages issued on system MV2H
   zos_operator_outstanding_action:
       system: mv2h
-- Sample result('requests' field):
-  [
-    {
-        'number': '101',
-        'type': 'R',
-        'system': 'MV2H',
-        'job_id': 'STC15413',
-        'message_text': '*101 VAMP 0670 : ENTER COMMAND FOR IYDBZVMP',
-        'jobname': 'VAMP',
-        'message_id': 'VAMP'
-    },
-    {
-        'number': '113',
-        'type': 'R',
-        'system': 'MV2H',
-        'message_text': '*113 DSI802A IYDCN    REPLY WITH VALID NCCF SYSTEM OPERATOR COMMAND',
-        'jobname': 'NETVIEW',
-        'message_id': 'DSI802A'
-    }
-  ]
-- name: To display all outstanding messages whose job name begin with im5
+
+- name: Display all outstanding messages whose job name begin with im5
   zos_operator_outstanding_action:
-      jobname: im5*
-- Sample result('requests' field):
-  [
-    {
-        'number': '088',
-        'type': 'R',
-        'system': 'MV2D',
-        'job_id': 'STC15113',
-        'message_text': '*088 DFS3139I IMS INITIALIZED, AUTOMATIC RESTART PROCEEDING IM5F',
-        'jobname': 'IM5FCTRL',
-        'message_id': 'DFS3139I
-    },
-    {
-        'number': '087',
-        'type': 'R',
-        'system': 'MV2D',
-        'job_id': 'STC15175',
-        'message_text': '*087 HWSC0000I *IMS CONNECT READY* IM5FCONN',
-        'jobname': 'IM5FCONN',
-        'message_id': 'HWSC0000I'
-    }
-  ]
-- name: To display the outstanding messages whose message id begin with dsi*
+      job_name: im5*
+
+- name: Display all outstanding messages whose message id begin with dsi*
   zos_operator_outstanding_action:
       message_id: dsi*
-- Sample result('requests' field):
-  [
-    {
-        'number': '086',
-        'type': 'R', 'system':
-        'MV2D', 'job_id':
-        'STC15120', 'message_text':
-        '*086 DSI802A IYM2D    REPLY WITH VALID NCCF SYSTEM OPERATOR COMMAND',
-        'jobname': 'MQNVIEW',
-        'message_id': 'DSI802A'
-    },
-    {
-        'number': '070',
-        'type': 'R',
-        'system': 'MV29',
-        'job_id': 'STC14852',
-        'message_text': '*070 DSI802A IYM29    REPLY WITH VALID NCCF SYSTEM OPERATOR COMMAND',
-        'jobname': 'MQNVIEW',
-        'message_id': 'DSI802A'
-    }
-  ]
-- name: Get outstanding messages given the various conditions
+
+- name: Display all outstanding messages given job_name, message_id, system
   zos_operator_outstanding_action:
-    jobname: mq*
+    job_name: mq*
     message_id: dsi*
     system: mv29
-- Sample result('requests' field):
-  [
-    {
-        'number': '070',
-        'type': 'R',
-        'system': 'MV29',
-        'job_id': 'STC14852',
-        'message_text': '*070 DSI802A IYM29    REPLY WITH VALID NCCF SYSTEM OPERATOR COMMAND',
-        'jobname': 'MQNVIEW',
-        'message_id': 'DSI802A'
-    }
-  ]
 '''
-RETURN = '''
-changed:
-    description: True if the state was changed, otherwise False
+
+RETURN = r'''
+original_message:
+    description: The original list of parameters and arguments and any defaults used.
     returned: always
-    type: bool
-failed:
-    description: True if run operator command failed, othewise False
+    type: dict
+changed: 
+    - >
+      description: Indicates if any changes were made during module operation. Given operator 
+      action commands query for messages, True is always returned unless either a module or 
+      command failure has occurred. 
     returned: always
     type: bool
 message:
-    description: Return if the operator command been issued successfully
-    returned: success
-    type: str
-requests_count:
-    description: The count of the outstanding messages
+    description:
+        - > 
+          The output message returned from this module. 
+          If a 'rc' 0 is returned, then the message will be 'Successfully queried the operator for outstanding actions.'.
+          If a non-zero 'rc' is returned, then the message it will be 'An error occurred during issue the operator command.
+    type: dict
+    returned: always
+    stdout:
+        description: The output from the module
+        type: str
+        sample: The operator command has been issued successfully
+    stderr: 
+        description: Any error text from the module
+        type: str
+        sample: If a non-zero 'rc' is returned, then the message it will be that of the operator command.
+count:
+    description: The total number of outstanding messages.
     returned: success
     type: int
-requests:
+result:
     description: The list of the outstanding messages
     returned: success
     type: list[dict]
+    contains:
+        number:
+            description: TBD
+            returned: success
+            type: int
+            sample: 001
+        type:
+            description: TBD
+            returned: success
+            type: TBD
+            sample: R
+        system:
+            description: System on which the outstanding message requiring operator action awaiting a reply.
+            returned: success
+            type: str
+            sample: MV27
+        job_id: 
+            description: Job identifier for the outstanding message requiring operator action awaiting a reply.
+            returned: success
+            type: str
+            sample: STC01537
+        message_text:
+            description: Job identifier for outstanding message requiring operator action awaiting a reply.
+            returned: success
+            type: str
+            sample: *399 HWSC0000I *IMS CONNECT READY* IM5HCONN
+        jobname: 
+            description: Job name for outstanding message requiring operator action awaiting a reply.
+            returned: success
+            type: str
+            sample: IM5HCONN
+        message_id: 
+            description: Message identifier for outstanding message requiring operator action awaiting a reply.
+            returned: success
+            type: str
+            sample: HWSC0000I
+    sample:
+        {
+            "result": 
+            [
+                {
+                    "number": '001',
+                    "type": 'R',
+                    "system": 'MV27',
+                    "job_id": 'STC01537',
+                    "message_text": '*399 HWSC0000I *IMS CONNECT READY* IM5HCONN',
+                    "job_name": 'IM5HCONN',
+                    "message_id": 'HWSC0000I'
+                    },
+                    {
+                    "number": '002',
+                    "type": 'R',
+                    "system": 'MV27',
+                    "job_id": 'STC01533',
+                    "message_text": '*400 DFS3139I IMS INITIALIZED, AUTOMATIC RESTART PROCEEDING IM5H',
+                    "job_name": 'IM5HCTRL',
+                    "message_id": 'DFS3139I'
+                }
+            ]
+        }
 '''
-
 
 from ansible.module_utils.basic import AnsibleModule
 import argparse
@@ -224,7 +170,6 @@ import re
 from traceback import format_exc
 from ansible_collections.ibm.ibm_zos_core.plugins.module_utils.better_arg_parser import BetterArgParser
 from zoautil_py import OperatorCmd
-
 
 def run_module():
     module_args = dict(
@@ -279,7 +224,7 @@ def run_module():
     except Exception as e:
         trace = format_exc()
         module.fail_json(msg='An unexpected error occurred: {0}'.format(trace), **result)
-    result['message'] = {'stdout': 'The operator command has been issued succeessfully.', 'stderr': ''}
+    result['message'] = {'stdout': 'Successfully queried the operator for outstanding actions.', 'stderr': ''}
     result['requests'] = requests
     module.exit_json(**result)
 
@@ -313,7 +258,6 @@ def jobname_type(arg_val, params):
     validate_parameters_based_on_regex(value,regex)
     return arg_val
 
-
 def validate_parameters_based_on_regex(value,regex):
     pattern = re.compile(regex)
     if pattern.search(value):
@@ -322,15 +266,13 @@ def validate_parameters_based_on_regex(value,regex):
         raise ValidationError(str(value))
     return value
 
-
-
 def find_required_request(params):
     merged_list = create_merge_list()
     requests = filter_requests(merged_list,params)
     if requests:
         pass
     else:
-        message='There is no such request given the condition, check your command or update your filter'
+        message='There is no such request given the condition, check your command or update your options.'
         raise OperatorCmdError(message)
     return requests
 
@@ -461,7 +403,6 @@ class ValidationError(Error):
 class OperatorCmdError(Error):
     def __init__(self, message):
         self.msg = 'An error occurred during issue the operator command, the response is "{0}"'.format(message)
-
 
 def main():
     run_module()
