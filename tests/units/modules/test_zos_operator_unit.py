@@ -96,6 +96,7 @@ def test_exception_receiving_name(zos_import_mocker):
     }
     mocker.patch('zoautil_py.OperatorCmd.execute', create=True, return_value=dummy_return_dict)
     message = 'bad result'
+    cmd = 'd u,all'
     args={'cmd': 'd u,all'}
     patched_method = mocker.patch.object(
         zos_operator.OperatorCmdError, '__init__', return_value=None)
@@ -103,4 +104,4 @@ def test_exception_receiving_name(zos_import_mocker):
         zos_operator.run_operator_command(args)
     except zos_operator.OperatorCmdError:
         pass
-    patched_method.assert_called_with(message)
+    patched_method.assert_called_with(cmd,message)

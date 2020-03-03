@@ -68,7 +68,6 @@ result:
             returned: success
             type: list[str]
             sample:
-                - >
                 [ "MV2C      2020039  04:29:57.58             ISF031I CONSOLE XIAOPIN ACTIVATED ",                  
                   "MV2C      2020039  04:29:57.58            -D U,ALL                           ",                                             
                   "MV2C      2020039  04:29:57.59             IEE457I 04.29.57 UNIT STATUS 948  ",               
@@ -133,6 +132,7 @@ def run_module():
         parser = BetterArgParser(arg_defs)
         new_params = parser.parse_args(module.params)
         rc_message = run_operator_command(new_params)
+        result = {}
         result['rc'] = rc_message.get('rc')
         result['content'] = rc_message.get('message').split('\n')
         results['result']=result
@@ -141,7 +141,6 @@ def run_module():
     except Exception as e:
         trace = format_exc()
         module.fail_json(msg='An unexpected error occurred: {0}'.format(trace), **results)
-    results['changed'] = True
     module.exit_json(**results)
 
 def run_operator_command(params):
@@ -153,7 +152,7 @@ def run_operator_command(params):
     rc = rc_message.get('rc')
     message = rc_message.get('message')
     if rc > 0:
-        raise OperatorCmdError(command,message.split('\n'))
+        raise OperatorCmdError(command,message)
     return rc_message
 
 class Error(Exception):
