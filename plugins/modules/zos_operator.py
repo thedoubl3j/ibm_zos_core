@@ -75,16 +75,12 @@ result:
                   "          0100 3277 OFFLINE                                 0                ",
                   "          0101 3277 OFFLINE                                 0                "
                 ]
-original_message:
-    description: The original list of parameters and arguments and any defaults used.
-    returned: always
-    type: dict
-changed: 
-    description: Indicates if any changes were made during module operation. Given operator 
-    commands can introduce change and unknown to the module, True is always returned unless
-    either a module or command failure has occurred. 
-    returned: always
-    type: bool
+        changed: 
+            description: Indicates if any changes were made during module operation. Given operator 
+            commands can introduce change and unknown to the module, True is always returned unless
+            either a module or command failure has occurred. 
+            returned: always
+            type: bool
 '''
 
 
@@ -102,6 +98,29 @@ def run_module():
         debug=dict(type='bool', default=False),
     )
 
+    result = dict(
+        changed=False
+    )
+
+    module = AnsibleModule(
+        argument_spec=module_args,
+        supports_check_mode=False
+    )
+
+    try:
+        new_params = parse_params(module.params)
+        rc_message = run_operator_command(new_params)
+        result['rc'] = rc_message.get('rc')
+        result['content'] = rc_message.get('message').split('\n')
+    except Error as e:
+        module.fail_json(msg=e.msg, **result)
+    except Exception as e:
+        trace = format_exc()
+        module.fail_json(msg='An unexpected error occurred: {0}'.format(trace), **result)
+    result['changed'] = True
+    module.exit_json(**result)
+
+def parse_params(params):
     arg_defs=dict(
         cmd = dict(
             arg_type='str',
@@ -116,32 +135,9 @@ def run_module():
             required=False
         )
     )
-
-    results = dict(
-        changed=False,
-        original_message=''
-    )
-
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=False
-    )
-
-    results['original_message'] = module.params
-    try:
-        parser = BetterArgParser(arg_defs)
-        new_params = parser.parse_args(module.params)
-        rc_message = run_operator_command(new_params)
-        result = {}
-        result['rc'] = rc_message.get('rc')
-        result['content'] = rc_message.get('message').split('\n')
-        results['result']=result
-    except Error as e:
-        module.fail_json(msg=e.msg, **results)
-    except Exception as e:
-        trace = format_exc()
-        module.fail_json(msg='An unexpected error occurred: {0}'.format(trace), **results)
-    module.exit_json(**results)
+    parser = BetterArgParser(arg_defs)
+    new_params = parser.parse_args(params)
+    return new_params
 
 def run_operator_command(params):
     command = params.get('cmd')
@@ -152,7 +148,7 @@ def run_operator_command(params):
     rc = rc_message.get('rc')
     message = rc_message.get('message')
     if rc > 0:
-        raise OperatorCmdError(command,message)
+        raise OperatorCmdError(command,message.split('\n') if message else message)
     return rc_message
 
 class Error(Exception):
