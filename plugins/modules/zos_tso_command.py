@@ -73,7 +73,7 @@ message:
         msg: 
             description: Message returned by the module 
             type: str
-            sample: Successfully submitted TSO command.
+            sample: The TSO command execution succeeded.
         stdout:
             description: The output from the module
             type: str
@@ -92,34 +92,28 @@ changed:
           Indicates if any changes were made during module operation. Given TSO 
           commands can introduce change and unknown to the module, True is always returned unless
           either a module or command failure has occurred. 
-          returned: always
+    returned: always
     type: bool
 
 Result sample:
     {
         "result":{ 
         "ret_code":{    
-            "code":00,  
-            "msg_code":"00", 
-            "msg_txt":"Only if we can deduce from the return code that is helfpul",      
+            "code":0,  
+            "msg_code":"0", 
+            "msg_txt":"",      
         },
         "content" : [
-            "NO MODEL DATA SET                                                OMVSADM",
-            "TERMUACC                                                                ",
-            "SUBGROUP(S)= VSAMDSET SYSCTLG  BATCH    SASS     MASS     IMSGRP1       ",
-            "             IMSGRP2  IMSGRP3  DSNCAT   DSN120   J42      M63           ",
-            "             J91      J09      J97      J93      M82      D67           ",
-            "             D52      M12      CCG      D17      M32      IMSVS         ",
-            "             DSN210   DSN130   RAD      CATLG4   VCAT     CSP           ",
-            "             DBRAD    UCAT     DB2R2CAT DB2R3CAT TESTCAT  DSNCAT1       ",
-            "             DSNCAT2  LOGCAT   USERVSAM DSNC220  DSNC120  DSNC210       "
+            "'IDC0550I ENTRY (A) TEST.HILL3.TEST DELETED",
         ]},
         "message":{
             "msg": "The TSO command execution succeeded.",
             "stderr":"delete 'TEST.HILL3.TEST'",            
             "stdout":"'IDC0550I ENTRY (A) TEST.HILL3.TEST DELETED'"         
         },
-        "original_message": {.....
+        "original_message": {        
+            "auth": null,
+            "command": "delete 'TEST.HILL3.TEST'"
         },
         "changed": false,
     }
@@ -177,7 +171,7 @@ def run_module():
         changed=False,
         original_message="",
         message="",
-        result=""
+        result=[]
     )
 
     command = module.params.get("command")
@@ -194,14 +188,16 @@ def run_module():
             "msg_txt": "",
         }
         content = stdout.splitlines()
-
         result["original_message"] = module.params
+        result['result'] = {
+            "ret_code": ret_code,
+            "content": content,
+        }
         result["message"] = {
             "msg": "",
             "stdout": stdout,
             "stderr": stderr,
         }
-        result['result'] = {ret_code, content}
         if rc == 0:
             result['changed'] = True
             result["message"]['msg'] = 'The TSO command execution succeeded.'
