@@ -25,8 +25,8 @@ options:
       default: false
       description: 
         - > 
-          Instruct whether this program should run authorized or not. 
-          If set to true, the program will be run as APF authorized, otherwise the program runs as unauthorized.
+          Instruct whether this command should run authorized or not. 
+          If set to true, the command will be run as APF authorized, otherwise the command runs as unauthorized.
 '''
 
 RETURN = r'''
@@ -42,12 +42,12 @@ result:
                 description: Holds the return code
                 returned: always
                 type: int
-                sample: 00
+                sample: 0
             msg_code:
                 description: Holds the return code string
                 returned:always
                 type: str
-                sample: "00"
+                sample: 0
             msg_txt:
                 description: Holds additional information related to the job that may be useful to the user.
                 type: str
@@ -94,7 +94,8 @@ changed:
           either a module or command failure has occurred. 
           returned: always
     type: bool
-sample:
+
+Result sample:
     {
         "result":{ 
         "ret_code":{    
@@ -132,19 +133,31 @@ EXAMPLES = r'''
   - name: Execute TSO command: delete an existing dataset. 
     zos_tso_command:
         command: delete 'TEST.HILL3.TEST'
+        
+  - name: Execute TSO command: list user TESTUSER tso information. 
+    zos_tso_command:
+        command: LU TESTUSER 
+        auth: true
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from os import chmod, path, remove
-from tempfile import NamedTemporaryFile
+from traceback import format_exc
 
-TSOCMD = 'tso'
-TSOCMD_AUTH = 'tsocmd'
-def run_tso_command(command,module):
+
+# ------------- Functions to run tso command ------------- #
+
+def run_tso_command(command, auth, module):
     try:
-        rc, stdout, stderr = module.run_command([TSOCMD, command])
-        if "IKJ56652I You attempted to run an authorized command or program. " in stdout:
+        if auth:
+            """When I issue tsocmd command to run authorized command, 
+            it always returns error BPXW9047I select error,BPXW9018I read error 
+            even when the return code is 0,
+            so use ZOAU command mvscmdauth to run authorized command.
+            """
             rc, stdout, stderr = module.run_command("echo "+command+"| mvscmdauth --pgm=IKJEFT01 --sysprint=* --systsprt=* --systsin=stdin",use_unsafe_shell=True)
+        else:
+            rc, stdout, stderr = module.run_command(['tso', command])
+
     except Exception as e:
         raise e
     return (stdout,stderr,rc )
@@ -153,6 +166,7 @@ def run_tso_command(command,module):
 def run_module():
     module_args = dict(
         command=dict(type='str', required=True),
+        auth=dict(type='bool', required=False),
     )
 
     module = AnsibleModule(
@@ -161,35 +175,45 @@ def run_module():
     )
     result = dict(
         changed=False,
-        stdout='',
-        stderr='',
-        return_code='8'
+        original_message="",
+        message=""
     )
 
     command = module.params.get("command")
+    auth = module.params.get("auth")
     if command == None or command.strip() == "":
         module.fail_json(msg='The "command" provided was null or an empty string.', **result)
 
     try:
-        stdout, stderr, rc = run_tso_command(command, module)
-        result['stdout'] = stdout
-        result['stderr'] = stderr
-        result['return_code'] = rc
-        result['changed'] = True
+        stdout, stderr, rc = run_tso_command(command, auth, module)
+        result["message"] = {
+            "msg": "",
+            "stdout": stdout,
+            "stderr": stderr,
+        }
+        result['ret_code'] = {
+            "code": rc,
+            "msg_code": rc,
+            "msg_txt": "",
+        }
+        result["content"] = stdout.lines()
+        result["original_message"] = module_args
         if rc == 0:
-            module.exit_json(msg='The TSO command execution succeeded.', **result)
+            result['changed'] = True
+            result["message"]['msg'] = 'The TSO command execution succeeded.'
+            module.exit_json(**result)
         else:
-            module.fail_json(msg='The TSO command execution failed.', **result)
+            result["message"]['msg'] = 'The TSO command execution failed.'
+            module.fail_json(**result)
 
+    except Error as e:
+        module.fail_json(msg=e.msg, **result)
     except Exception as e:
-        module.fail_json(msg=e, **result)
+        trace = format_exc()
+        module.fail_json(msg="An unexpected error occurred: {0}".format(trace), **result)
 
 class Error(Exception):
     pass
-
-# class TSOCommandError(Error):
-#     def __init__(self, command):
-#         self.msg = 'An error occurred during TSO command execution .'.format(command)
 
 def main():
     run_module()
