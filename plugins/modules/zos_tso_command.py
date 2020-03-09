@@ -30,42 +30,38 @@ options:
 '''
 
 RETURN = r'''
-result:
-    description:
+ret_code:
+    description: return code output received from the TSO command
     returned:
     type: list[dict]
-        ret_code:
-            description: return code output received from the TSO command
-            returned:
-            type: list[dict]
-            code:
-                description: Holds the return code
-                returned: always
-                type: int
-                sample: 0
-            msg_code:
-                description: Holds the return code string
-                returned:always
-                type: str
-                sample: 0
-            msg_txt:
-                description: Holds additional information related to the job that may be useful to the user.
-                type: str
-                sample: "Received return code 08, please configure IMS Connect"
-        content:
-            description: The response resulting from the execution of the TSO command
-            returned: success
-            type: list[str]
-            sample:
-               - >
-               [ "NO MODEL DATA SET                                                OMVSADM",
-                 "TERMUACC                                                                ",
-                 "SUBGROUP(S)= VSAMDSET SYSCTLG  BATCH    SASS     MASS     IMSGRP1       ",
-                 "             IMSGRP2  IMSGRP3  DSNCAT   DSN120   J42      M63           ",
-                 "             J91      J09      J97      J93      M82      D67           ",
-                 "             D52      M12      CCG      D17      M32      IMSVS         ",
-                 "             DSN210   DSN130   RAD      CATLG4   VCAT     CSP           ",
-                ]
+    code:
+        description: Holds the return code
+        returned: always
+        type: int
+        sample: 0
+    msg_code:
+        description: Holds the return code string
+        returned:always
+        type: str
+        sample: 0
+    msg_txt:
+        description: Holds additional information related to the job that may be useful to the user.
+        type: str
+        sample: "Received return code 08, please configure IMS Connect"
+content:
+    description: The response resulting from the execution of the TSO command
+    returned: success
+    type: list[str]
+    sample:
+       - >
+       [ "NO MODEL DATA SET                                                OMVSADM",
+         "TERMUACC                                                                ",
+         "SUBGROUP(S)= VSAMDSET SYSCTLG  BATCH    SASS     MASS     IMSGRP1       ",
+         "             IMSGRP2  IMSGRP3  DSNCAT   DSN120   J42      M63           ",
+         "             J91      J09      J97      J93      M82      D67           ",
+         "             D52      M12      CCG      D17      M32      IMSVS         ",
+         "             DSN210   DSN130   RAD      CATLG4   VCAT     CSP           ",
+        ]
 message:
     description: The output message returned from this module. 
     type: dict
