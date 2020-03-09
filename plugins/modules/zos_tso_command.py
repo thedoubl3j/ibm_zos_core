@@ -196,8 +196,8 @@ def run_module():
             "msg_code": rc,
             "msg_txt": "",
         }
-        result["content"] = stdout.lines()
-        result["original_message"] = module_args
+        result["content"] = stdout.splitlines()
+        result["original_message"] = module.params
         if rc == 0:
             result['changed'] = True
             result["message"]['msg'] = 'The TSO command execution succeeded.'
